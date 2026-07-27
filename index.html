@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>6D5N Beijing Autumn Essence &amp; Imperial Harmony</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    --ink:#17140F;
+    --ink-soft:#241F17;
+    --parchment:#F1E6D0;
+    --parchment-soft:#E8DABF;
+    --vermillion:#A32F27;
+    --vermillion-dark:#7C231D;
+    --gold:#C6952E;
+    --jade:#3F5D4E;
+    --ember:#C1592A;
+    --text-dark:#2B2419;
+    --text-light:#F1E6D0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--parchment);
+    color:var(--text-dark);
+    font-family:'Work Sans', sans-serif;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    font-size:0.7rem;
+  }
+
+  /* ---------- TRIP HERO ---------- */
+  .hero{
+    position:relative;
+    background:var(--ink);
+    color:var(--text-light);
+    padding:2.4rem 1.5rem 2.6rem;
+    overflow:hidden;
+  }
+  .hero-inner{ max-width:900px; margin:0 auto; position:relative; z-index:2; }
+  .hero-inner h1{
+    font-family:'Marcellus', serif;
+    font-weight:400;
+    font-size:clamp(1.6rem, 4vw, 2.5rem);
+    margin:0.4rem 0 0.5rem;
+    line-height:1.2;
+  }
+  .hero-inner .eyebrow{ color:var(--gold); }
+  .hero-inner p.sub{
+    margin:0 0 1.4rem;
+    color:rgba(241,230,208,0.72);
+    max-width:56ch;
+    font-size:0.95rem;
+  }
+  .flight-rows{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.03em;
+    display:flex;
+    flex-direction:column;
+    gap:0.5rem;
+    border-top:1px solid rgba(198,149,46,0.35);
+    padding-top:1rem;
+    max-width:640px;
+  }
+  .flight-rows .row{ display:flex; flex-wrap:wrap; gap:0.4rem 1.1rem; }
+  .flight-rows .dim{ color:rgba(241,230,208,0.55); }
+  .flight-rows .gold{ color:var(--gold); }
+
+  .leaf{ position:absolute; opacity:0.5; color:var(--ember); }
+  .leaf svg{ width:100%; height:100%; display:block; }
+  .leaf.l1{ top:12%; right:7%; width:34px; height:34px; animation:drift 9s ease-in-out infinite; }
+  .leaf.l2{ top:52%; right:16%; width:22px; height:22px; color:var(--gold); animation:drift 11s ease-in-out infinite 1.5s; }
+  .leaf.l3{ top:28%; right:26%; width:18px; height:18px; animation:drift 7.5s ease-in-out infinite 0.8s; }
+  @keyframes drift{ 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(14px) rotate(18deg);} }
+  @media (prefers-reduced-motion: reduce){ .leaf{ animation:none !important; } }
+
+  /* ---------- DAY TABS ---------- */
+  .tabs-wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding:1.2rem 1.5rem 0;
+  }
+  .tabs{
+    display:flex;
+    gap:0.6rem;
+    overflow-x:auto;
+    padding-bottom:0.8rem;
+    border-bottom:1px solid rgba(43,36,25,0.15);
+    scrollbar-width:thin;
+  }
+  .tab{
+    flex:none;
+    display:flex;
+    align-items:center;
+    gap:0.45rem;
+    padding:0.35rem 0.65rem;
+    border-radius:9px;
+    border:1px solid rgba(43,36,25,0.15);
+    background:var(--parchment-soft);
+    cursor:pointer;
+    text-align:left;
+    font:inherit;
+    color:var(--text-dark);
+    transition:background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tab:hover{ border-color:var(--vermillion); }
+  .tab.active{
+    background:var(--parchment);
+    border-color:var(--vermillion);
+    box-shadow:0 2px 6px rgba(163,47,39,0.18);
+  }
+  .tab .tab-seal{
+    flex:none;
+    width:24px;height:24px;
+    border-radius:50%;
+    border:2px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 35% 30%, var(--vermillion) 0%, var(--vermillion-dark) 100%);
+    color:var(--text-light);
+    font-family:'Marcellus', serif;
+    font-size:0.68rem;
+  }
+  .tab .tab-date{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    letter-spacing:0.03em;
+    color:var(--text-dark);
+    white-space:nowrap;
+  }
+
+  /* ---------- DAY PANELS ---------- */
+  .panels{ max-width:900px; margin:0 auto; padding:1.4rem 1.5rem 4rem; }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+  .panel-head{ margin-bottom:1rem; }
+  .panel-head .eyebrow{ color:var(--vermillion-dark); margin-bottom:0.2rem; }
+  .panel-head h2{
+    font-family:'Marcellus', serif;
+    font-weight:400;
+    font-size:1.3rem;
+    margin:0 0 0.3rem;
+  }
+  .panel-head .teaser{
+    font-size:0.9rem;
+    color:rgba(43,36,25,0.65);
+    margin:0;
+  }
+
+  .day-panel{
+    display:grid;
+    grid-template-columns:1.15fr 1fr;
+    gap:1.6rem;
+  }
+  @media (max-width:760px){
+    .day-panel{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- STOP CARDS ---------- */
+  .stop{ display:flex; gap:0.9rem; }
+  .stop + .stop{ margin-top:0.2rem; }
+  .stop-marker{ flex:none; display:flex; flex-direction:column; align-items:center; }
+  .stop-marker .num{
+    width:32px;height:32px;
+    border-radius:50%;
+    background:var(--vermillion);
+    border:2px solid var(--gold);
+    color:var(--text-light);
+    font-family:'Marcellus', serif;
+    font-size:0.9rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .stop-marker .stem{
+    flex:1; width:1px;
+    background:repeating-linear-gradient(to bottom, var(--gold) 0 4px, transparent 4px 9px);
+    margin-top:4px;
+  }
+  .stop:last-child .stop-marker .stem{ display:none; }
+  .stop-body{ padding-bottom:1.6rem; }
+  .stop-time{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--vermillion-dark);
+    letter-spacing:0.05em;
+  }
+  .stop-body h3{
+    font-family:'Marcellus', serif;
+    font-weight:400;
+    font-size:1.08rem;
+    margin:0.2rem 0 0.4rem;
+  }
+  .stop-body p{ margin:0; font-size:0.88rem; line-height:1.6; color:rgba(43,36,25,0.85); }
+  .stop-body .zh{
+    font-family:'Work Sans', sans-serif;
+    font-weight:500;
+    font-size:1rem;
+    color:rgba(43,36,25,0.58);
+    margin-left:0.5rem;
+  }
+  .stop-link{
+    display:inline-flex;
+    align-items:center;
+    gap:0.3rem;
+    margin-top:0.55rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.02em;
+    color:var(--vermillion-dark);
+    text-decoration:none;
+    border-bottom:1px solid rgba(124,35,29,0.35);
+  }
+  .stop-link:hover{ border-bottom-color:var(--vermillion-dark); }
+
+  .stop-photo{
+    margin-top:0.8rem;
+    border:1px solid var(--gold);
+    padding:5px;
+    background:var(--parchment);
+    display:inline-block;
+    max-width:100%;
+  }
+  .stop-photo img{ display:block; width:100%; max-width:380px; border-radius:2px; }
+  .photo-fallback{
+    display:none;
+    width:100%; max-width:380px; height:190px;
+    align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;
+    background:repeating-linear-gradient(135deg, rgba(63,93,78,0.06) 0 10px, transparent 10px 20px);
+    border:1px dashed var(--jade);
+    color:var(--jade);
+    text-align:center;
+    padding:1rem;
+  }
+  .photo-fallback svg{ width:28px; height:28px; }
+  .photo-fallback span{ font-family:'IBM Plex Mono', monospace; font-size:0.66rem; max-width:28ch; line-height:1.5; }
+  .photo-fallback code{ display:block; margin-top:0.3rem; font-size:0.64rem; color:var(--vermillion-dark); }
+
+  .transit{
+    margin:0.7rem 0 0.2rem 0;
+    display:inline-flex; align-items:center; gap:0.5rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.7rem;
+    color:var(--jade);
+    background:rgba(63,93,78,0.09);
+    border:1px solid rgba(63,93,78,0.25);
+    padding:0.32rem 0.65rem;
+    border-radius:20px;
+    margin-left:46px;
+  }
+  .transit svg{ width:13px; height:13px; flex:none; }
+
+  /* ---------- MAP ---------- */
+  .map-col{ min-width:0; }
+  .map-holder{ position:sticky; top:1rem; }
+  .leaflet-map{
+    width:100%; height:340px;
+    border-radius:6px;
+    border:1px solid rgba(43,36,25,0.18);
+    filter:sepia(55%) saturate(70%) hue-rotate(-8deg) brightness(0.94) contrast(1.05);
+    background:var(--parchment-soft);
+  }
+  .map-legend{
+    display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.7rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.65rem;
+    color:rgba(43,36,25,0.6);
+  }
+  .map-legend .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--vermillion); margin-right:0.3rem; }
+
+  footer{
+    max-width:900px; margin:0 auto; padding:0 1.5rem 3rem;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem;
+    color:rgba(43,36,25,0.55); line-height:1.6;
+  }
+
+  /* ---------- MOBILE ---------- */
+  @media (max-width:480px){
+    .hero{ padding:1.8rem 1.1rem 2rem; }
+    .tabs-wrap, .panels, footer{ padding-left:1.1rem; padding-right:1.1rem; }
+    .day-panel{ gap:1.2rem; }
+    .stop{ gap:0.6rem; }
+    .stop-body .zh{ display:block; margin-left:0; margin-top:0.15rem; }
+    .transit{ margin-left:38px; white-space:normal; }
+    .leaflet-map{ height:260px; }
+    .map-holder{ position:static; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="leaf l1"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c4 3 8 6 8 11a8 8 0 0 1-16 0c0-5 4-8 8-11z"/></svg></div>
+  <div class="leaf l2"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c4 3 8 6 8 11a8 8 0 0 1-16 0c0-5 4-8 8-11z"/></svg></div>
+  <div class="leaf l3"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c4 3 8 6 8 11a8 8 0 0 1-16 0c0-5 4-8 8-11z"/></svg></div>
+  <div class="hero-inner">
+    <div class="eyebrow">Oct 17 – 22, 2026 · 6 Days, 5 Nights</div>
+    <h1>Beijing Autumn Essence &amp; Imperial Harmony</h1>
+    <p class="sub">Nature, temple masterpieces, and hutong café-chilling — a geographic-flow itinerary through imperial Beijing at the peak of its autumn colour.</p>
+    <div class="flight-rows">
+      <div class="row"><span class="gold">SQ800</span><span class="dim">SIN T3 → PEK T3</span><span>01:10 → 07:15</span><span class="dim">· Sat, Oct 17</span></div>
+      <div class="row"><span class="gold">SQ811</span><span class="dim">PKX → SIN T3</span><span>09:25 → 15:50</span><span class="dim">· Thu, Oct 22</span></div>
+      <div class="row dim">Staying: Sunworld Dynasty Hotel, Wangfujing Street</div>
+    </div>
+  </div>
+</section>
+
+<div class="tabs-wrap">
+  <nav class="tabs" id="tabs"></nav>
+</div>
+
+<div class="panels" id="panels"></div>
+
+<footer>
+  Pins are approximate, for personal trip reference only · Transit durations are estimates from planning, not live traffic · Photos are local placeholders — see the <code>images/</code> folder to add your own.
+</footer>
+
+<script>
+/* ---------------- DATA ---------------- */
+const DAYS = [
+  {
+    num: 1, date: "Sat, Oct 17", title: "Arrival & Historic Hutong Café Chilling",
+    teaser: "Land, check in, ease into Beijing through its quietest hutong.",
+    stops: [
+      { time:"07:15 AM", title:"Arrival — Beijing Capital Airport", zh:"北京首都国际机场", coord:[40.0799,116.6031],
+        text:"Land at PEK Terminal 3, clear immigration and baggage claim, then take a DiDi straight into the city.",
+        photo:{src:"images/airport-pek.png", alt:"Beijing Capital Airport"} },
+      { transit:{type:"car", label:"DiDi · PEK → Sunworld Dynasty Hotel · ~35–45 min / 28 km"} },
+      { time:"Late morning", title:"Check-in — Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Drop bags at the lobby on Wangfujing Street and freshen up before heading back out.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
+      { transit:{type:"car", label:"DiDi · Hotel → Wudaoying Hutong · ~15 min / 5 km"} },
+      { time:"Afternoon", title:"Wudaoying Hutong & Café Hopping", zh:"五道营胡同", coord:[39.9428,116.4095],
+        text:"Step directly into Beijing’s premier hipster alleyway culture. Wudaoying is a peaceful, charming historic lane lined with independent coffee roasters, boutique bakeries, and local artisan shops. It is the perfect place to shake off flight fatigue with a specialty latte, browse unique boutiques, and enjoy a leisurely stroll through one of Beijing’s most charming hutongs.",
+        photo:{src:"images/wudaoying-hutong.png", alt:"Wudaoying Hutong, Beijing"},
+        link:"https://www.chinahighlights.com/beijing/attraction/wudaoying-hutong.htm" },
+      { transit:{type:"car", label:"DiDi · Wudaoying Hutong → Hotel · ~15 min"} },
+      { time:"Night", title:"Return to Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Back at the hotel on Wangfujing Street after settling in and easing into the city on day one." }
+    ]
+  },
+  {
+    num: 2, date: "Sun, Oct 18", title: "Imperial Masterpieces & Lakeside Evening",
+    teaser: "Forbidden City, Jingshan's skyline view, hutongs and lantern-lit lakes.",
+    stops: [
+      { time:"Morning", title:"Depart Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Grab a quick breakfast and set off from the hotel on Wangfujing Street to begin the day's imperial walk.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
+      { transit:{type:"car", label:"DiDi · Hotel → Forbidden City · ~10 min / 3 km"} },
+      { time:"Morning", title:"The Forbidden City", zh:"故宫", coord:[39.9163,116.3972],
+        text:"Walk through the Meridian Gate into the world's largest palace complex — golden roofs, ceremonial halls and hidden gardens of the Ming and Qing emperors.",
+        photo:{src:"images/forbidden-city.png", alt:"The Forbidden City, Beijing"},
+        link:"https://intl.dpm.org.cn/index.html?l=en" },
+      { transit:{type:"walk", label:"Walking · Forbidden City → Jingshan Park · directly across the street · ~5 min"} },
+      { time:"Early afternoon", title:"Jingshan Park", zh:"景山公园", coord:[39.9271,116.3972],
+        text:"A short climb across from the palace's north gate rewards you with Beijing's most iconic panorama — the Forbidden City spread beneath autumn colour.",
+        photo:{src:"images/jingshan-park.png", alt:"Jingshan Park, Beijing"},
+        link:"https://english.beijing.gov.cn/specials/parktours/guidevisitors/jingshanpark/" },
+      { transit:{type:"car", label:"DiDi · Jingshan (North Gate) → Nanluoguxiang · ~8 min / 2 km"} },
+      { time:"Late afternoon", title:"Nanluoguxiang Hutong", zh:"南锣鼓巷", coord:[39.9425,116.3964],
+        text:"One of Beijing's most famous hutongs — quirky boutiques, local snacks, and courtyard cafés tucked into the alleys.",
+        photo:{src:"images/nanluoguxiang-hutong.png", alt:"Nanluoguxiang Hutong, Beijing"},
+        link:"https://www.chinahighlights.com/beijing/attraction/the-southern-gong-and-drum-lane.htm" },
+      { transit:{type:"walk", label:"Walking · Nanluoguxiang → Shichahai Lakes · ~15 min"} },
+      { time:"Evening", title:"Shichahai Lakes", zh:"什刹海", coord:[39.9376,116.3853],
+        text:"Historic hutongs meet lantern-lit lakes as dusk falls — a peaceful walk, cosy bars, and one of Beijing's favourite evening scenes.",
+        photo:{src:"images/shichahai-lakes.png", alt:"Shichahai Lakes, Beijing"},
+        link:"https://www.travelchinaguide.com/attraction/beijing/shichahai.htm" },
+      { transit:{type:"car", label:"DiDi · Shichahai → Hotel · ~15 min / 5 km"} },
+      { time:"Night", title:"Return to Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Back at the hotel on Wangfujing Street to rest up after a long day of walking imperial Beijing.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} }
+    ]
+  },
+  {
+    num: 3, date: "Mon, Oct 19", title: "Official Klook Mutianyu Great Wall Tour",
+    teaser: "A full day on the Wall, wrapped in forests of autumn red and gold.",
+    stops: [
+      { time:"Morning", title:"Hotel pickup", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"DiDi to your designated Klook central pickup point for today's premium day tour.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
+      { transit:{type:"car", label:"DiDi · Hotel → pickup point · ~10 min / 3 km"} },
+      { transit:{type:"bus", label:"Coach · ~1.5 hr air-conditioned drive each way"} },
+      { time:"All day", title:"Mutianyu Great Wall", zh:"慕田峪长城", coord:[40.4319,116.5704],
+        text:"Forested watchtowers dressed in autumn red and gold. Round-trip transport, entry, buffet lunch and cable car included — explore the wall, then take the alpine toboggan down.",
+        photo:{src:"images/mutianyu-great-wall.png", alt:"Great Wall of China at Mutianyu"},
+        link:"https://www.klook.com/en-SG/activity/14942-mutianyu-great-wall-day-tour-beijing/" },
+      { transit:{type:"bus", label:"Coach · ~1.5 hr back to the city"} },
+      { transit:{type:"car", label:"DiDi · Drop-off point → Hotel · ~10 min"} },
+      { time:"Evening", title:"Return to Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Back at the hotel after a full day exploring the Wall — time to rest up.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} }
+    ]
+  },
+  {
+    num: 4, date: "Tue, Oct 20", title: "Sacred Heritage & Contemporary Beijing",
+    teaser: "Temple of Heaven's cypress groves, 798's galleries, a river-lit evening.",
+    stops: [
+      { time:"Morning", title:"Depart Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Set off from the hotel for a day spanning ancient heritage and contemporary art.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
+      { transit:{type:"car", label:"DiDi · Hotel → Temple of Heaven (East Gate) · ~15 min / 6 km"} },
+      { time:"Morning", title:"Temple of Heaven", zh:"天坛", coord:[39.8822,116.4066],
+        text:"Where Ming and Qing emperors prayed for good harvests — the Hall of Prayer, ancient cypress groves, and locals practising tai chi at dawn.",
+        photo:{src:"images/temple-of-heaven.png", alt:"Temple of Heaven, Beijing"},
+        link:"https://english.beijing.gov.cn/specials/parktours/guidevisitors/templeofheaven/" },
+      { transit:{type:"car", label:"DiDi · Temple of Heaven → 798 Art District · ~25 min / 17 km"} },
+      { time:"Afternoon", title:"798 Art District", zh:"798艺术区", coord:[39.9847,116.4959],
+        text:"A former military factory turned contemporary art zone — Bauhaus warehouses, galleries, sculpture, and design stores.",
+        photo:{src:"images/798-art-district.png", alt:"798 Art District, Beijing"},
+        link:"https://www.travelchinaguide.com/attraction/beijing/798-art-zone.htm" },
+      { transit:{type:"car", label:"DiDi · 798 Art District → Liangma River · ~30 min"} },
+      { time:"Evening", title:"Liangma River Waterfront", zh:"亮马河", coord:[39.9490,116.4570],
+        text:"Beijing's \"mini-Europe\" — illuminated bridges, riverside cafés, and a relaxed evening stroll.",
+        photo:{src:"images/liangma-river.png", alt:"Liangma River Waterfront, Beijing"},
+        link:"https://english.bjchy.gov.cn/node/396" },
+      { transit:{type:"car", label:"DiDi · Liangma River → Hotel · ~20 min / 9 km"} },
+      { time:"Night", title:"Return to Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Back at the hotel after a day spanning ancient temples, contemporary galleries, and a riverside evening.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} }
+    ]
+  },
+  {
+    num: 5, date: "Wed, Oct 21", title: "Imperial Gardens & Historic Beijing",
+    teaser: "Kunming Lake's Long Corridor, then lantern-lit Qianmen at night.",
+    stops: [
+      { time:"Morning", title:"Depart Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Set off from the hotel for a day among imperial gardens and old Beijing streets.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
+      { transit:{type:"car", label:"DiDi · Hotel → Summer Palace · ~30 min / 20 km"} },
+      { time:"Morning", title:"The Summer Palace", zh:"颐和园", coord:[39.9998,116.2755],
+        text:"China's finest imperial garden, especially vivid in autumn — Kunming Lake, the Long Corridor, and the royal family's old summer retreat.",
+        photo:{src:"images/summer-palace.png", alt:"Kunming Lake, Summer Palace, Beijing"},
+        link:"https://www.chinahighlights.com/beijing/attraction/summer-palace.htm" },
+      { transit:{type:"car", label:"DiDi · Summer Palace → Qianmen Street · ~35 min / 21 km"} },
+      { time:"Late afternoon & evening", title:"Qianmen Street & Dashilan", zh:"前门大街·大栅栏", coord:[39.8990,116.3976],
+        text:"Old Beijing's restored pedestrian streets — tea houses, time-honoured shops, snack stalls, and a nostalgic lantern-lit evening.",
+        photo:{src:"images/qianmen-street.png", alt:"Qianmen Street, Beijing"},
+        link:"https://www.travelchinaguide.com/attraction/beijing/qianmen-street.htm" },
+      { transit:{type:"car", label:"DiDi · Qianmen Street → Hotel · ~12 min / 4 km"} },
+      { time:"Night", title:"Return to Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Back at the hotel after a day at the Summer Palace and a lantern-lit evening at Qianmen.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} }
+    ]
+  },
+  {
+    num: 6, date: "Thu, Oct 22", title: "Homebound Journey",
+    teaser: "An early DiDi to Daxing, then SQ811 home.",
+    stops: [
+      { time:"~5:00 AM", title:"Hotel departure", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
+        text:"Wake early, grab a quick coffee if time permits, and depart for Beijing Daxing International Airport.",
+        photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
+      { transit:{type:"car", label:"DiDi · Hotel → Daxing Airport (PKX) · ~55 min / 50 km via urban highway"} },
+      { time:"09:25 AM", title:"Departure — SQ811 to Singapore", zh:"北京大兴国际机场", coord:[39.5098,116.4105],
+        text:"Flight SQ811 departs Daxing at 09:25, landing in Singapore at 15:50 — home with a week of imperial history and autumn colour.",
+        photo:{src:"images/airport-pkx.png", alt:"Beijing Daxing International Airport"} }
+    ]
+  }
+];
+
+/* ---------------- ICONS ---------------- */
+const ICONS = {
+  car: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l2-5a2 2 0 0 1 2-1h10a2 2 0 0 1 2 1l2 5"/><path d="M3 13h18v4a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4z"/></svg>`,
+  bus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M3 12h18M7 17v2M17 17v2"/></svg>`,
+  walk: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="4.5" r="1.6" fill="currentColor" stroke="none"/><path d="M10 8l-2 4 2 1 1 5M14 8l2 3-3 2M11 13l3 1 2 4"/></svg>`
+};
+const CAMERA_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.2"/></svg>`;
+
+function imgFallback(imgEl){
+  imgEl.style.display = 'none';
+  const fb = imgEl.parentElement.querySelector('.photo-fallback');
+  if (fb) fb.style.display = 'flex';
+}
+window.imgFallback = imgFallback;
+
+/* Stops that share the same coordinates (e.g. the hotel visited twice in a
+   day) reuse the same number, so a repeat visit doesn't get a fresh number
+   whose pin then just hides on top of the earlier one on the map. */
+function numberStops(day){
+  const numbers = new Map();
+  const seen = new Map();
+  let next = 1;
+  day.stops.forEach(item => {
+    if (item.transit || !item.coord) return;
+    const key = item.coord.join(',');
+    if (seen.has(key)) {
+      numbers.set(item, seen.get(key));
+    } else {
+      seen.set(key, next);
+      numbers.set(item, next);
+      next++;
+    }
+  });
+  return numbers;
+}
+
+/* ---------------- RENDER ---------------- */
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+const MAPS = {};
+const mapInited = {};
+
+DAYS.forEach(day => {
+  /* --- tab button --- */
+  const tab = document.createElement('button');
+  tab.type = 'button';
+  tab.className = 'tab';
+  tab.dataset.day = day.num;
+  tab.innerHTML = `
+    <span class="tab-seal">${String(day.num).padStart(2,'0')}</span>
+    <span class="tab-date">${day.date}</span>
+  `;
+  tab.addEventListener('click', () => activateDay(day.num));
+  tabsEl.appendChild(tab);
+
+  /* --- panel --- */
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.dataset.day = day.num;
+
+  const head = document.createElement('div');
+  head.className = 'panel-head';
+  head.innerHTML = `
+    <div class="eyebrow">${day.date} · Day ${day.num} of 6</div>
+    <h2>${day.title}</h2>
+    <p class="teaser">${day.teaser}</p>
+  `;
+  panel.appendChild(head);
+
+  const grid = document.createElement('div');
+  grid.className = 'day-panel';
+
+  const timeline = document.createElement('div');
+  timeline.className = 'timeline';
+  const stopNumbers = numberStops(day);
+  day.stops.forEach(item => {
+    if (item.transit) {
+      const t = document.createElement('div');
+      t.className = 'transit';
+      t.innerHTML = `${ICONS[item.transit.type]}${item.transit.label}`;
+      timeline.appendChild(t);
+      return;
+    }
+    const stop = document.createElement('div');
+    stop.className = 'stop';
+    let photoHtml = '';
+    if (item.photo) {
+      photoHtml = `
+        <div class="stop-photo">
+          <img src="${item.photo.src}" alt="${item.photo.alt}" loading="lazy" onerror="imgFallback(this)">
+          <div class="photo-fallback">${CAMERA_ICON}<span>Add your photo here<code>${item.photo.src}</code></span></div>
+        </div>`;
+    }
+    const zhHtml = item.zh ? `<span class="zh">${item.zh}</span>` : '';
+    const linkHtml = item.link ? `<a class="stop-link" href="${item.link}" target="_blank" rel="noopener noreferrer">More info ↗</a>` : '';
+    stop.innerHTML = `
+      <div class="stop-marker"><div class="num">${stopNumbers.get(item)}</div><div class="stem"></div></div>
+      <div class="stop-body">
+        <div class="stop-time">${item.time}</div>
+        <h3>${item.title}${zhHtml}</h3>
+        <p>${item.text}</p>
+        ${photoHtml}
+        ${linkHtml}
+      </div>`;
+    timeline.appendChild(stop);
+  });
+  grid.appendChild(timeline);
+
+  const mapCol = document.createElement('div');
+  mapCol.className = 'map-col';
+  mapCol.innerHTML = `
+    <div class="map-holder">
+      <div class="leaflet-map" id="map-${day.num}"></div>
+      <div class="map-legend">
+        <span><span class="dot"></span>Route in visit order</span>
+        <span>Markers match the numbered stops</span>
+      </div>
+    </div>`;
+  grid.appendChild(mapCol);
+
+  panel.appendChild(grid);
+  panelsEl.appendChild(panel);
+});
+
+function activateDay(num){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', Number(t.dataset.day) === num));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', Number(p.dataset.day) === num));
+  if (!mapInited[num]) {
+    mapInited[num] = true;
+    const day = DAYS.find(d => d.num === num);
+    requestAnimationFrame(() => initDayMap(day));
+  } else {
+    const m = MAPS[num];
+    if (m) setTimeout(() => m.invalidateSize(), 50);
+  }
+}
+
+function initDayMap(day){
+  const coords = day.stops.filter(s => s.coord).map(s => s.coord);
+  const map = L.map(`map-${day.num}`, { zoomControl:true, scrollWheelZoom:false });
+  MAPS[day.num] = map;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom:18, attribution:'&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const sealIcon = (n) => L.divIcon({
+    className:'',
+    html:`<div style="width:28px;height:28px;border-radius:50%;background:#A32F27;border:2px solid #C6952E;color:#F1E6D0;font-family:'Marcellus',serif;font-size:0.8rem;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.4);">${n}</div>`,
+    iconSize:[28,28], iconAnchor:[14,14]
+  });
+
+  const stopNumbers = numberStops(day);
+  day.stops.filter(s => s.coord).forEach(s => {
+    const n = stopNumbers.get(s);
+    L.marker(s.coord, { icon: sealIcon(n) }).addTo(map).bindPopup(`<b>${n}. ${s.title}</b>`);
+  });
+
+  L.polyline(coords, { color:'#A32F27', weight:3, opacity:0.85, dashArray:'1 9', lineCap:'round' }).addTo(map);
+  map.fitBounds(coords, { padding:[30,30] });
+  setTimeout(() => map.invalidateSize(), 80);
+}
+
+/* activate Day 1 by default, and init its map once the panel is visible */
+activateDay(1);
+</script>
+</body>
+</html>
