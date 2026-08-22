@@ -14,7 +14,7 @@ Drop your own photos into this folder using the exact filenames below. Until a f
 | `mutianyu-great-wall.png` | Day 3 — Mutianyu Great Wall |
 | `temple-of-heaven.png` | Day 4 — Temple of Heaven |
 | `798-art-district.png` | Day 4 — 798 Art District |
-| `liangma-river.png` | Day 4 — Liangma River Waterfront |
+| `beijing-imperial-banquet.png` | Day 4 — Beijing Imperial Banquet |
 | `summer-palace.png` | Day 5 — The Summer Palace |
 | `qianmen-street.png` | Day 5 — Qianmen Street & Dashilan |
 | `airport-pkx.png` | Day 6 — Departure, Beijing Daxing International Airport (PKX) |
