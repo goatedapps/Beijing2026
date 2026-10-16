@@ -53,11 +53,27 @@
     line-height:1.2;
   }
   .hero-inner .eyebrow{ color:var(--gold); }
-  .hero-inner p.sub{
-    margin:0 0 1.4rem;
-    color:rgba(241,230,208,0.72);
-    max-width:56ch;
-    font-size:0.95rem;
+  .flight-toggle{
+    display:none;
+    align-items:center;
+    gap:0.5rem;
+    margin-top:0.8rem;
+    padding:0.5rem 0;
+    border:0;
+    background:none;
+    color:var(--gold);
+    font:500 0.75rem 'IBM Plex Mono', monospace;
+    cursor:pointer;
+  }
+  .flight-toggle::after{ content:'+'; }
+  .flight-toggle[aria-expanded="true"]::after{ content:'−'; }
+  .flight-toggle:focus-visible{ outline:2px solid var(--gold); outline-offset:4px; }
+  .flight-folder-link{ color:var(--gold); text-underline-offset:3px; }
+  .flight-rows[hidden]{ display:flex; }
+  @media (max-width:760px){
+    .hero{ padding:1.3rem 1.1rem; }
+    .flight-toggle{ display:inline-flex; }
+    .flight-rows[hidden]{ display:none; }
   }
   .flight-rows{
     font-family:'IBM Plex Mono', monospace;
@@ -279,7 +295,7 @@
 
   /* ---------- MOBILE ---------- */
   @media (max-width:480px){
-    .hero{ padding:1.8rem 1.1rem 2rem; }
+    .hero{ padding:1.3rem 1.1rem; }
     .tabs-wrap, .panels, footer{ padding-left:1.1rem; padding-right:1.1rem; }
     .day-panel{ gap:1.2rem; }
     .stop{ gap:0.6rem; }
@@ -299,11 +315,12 @@
   <div class="hero-inner">
     <div class="eyebrow">Oct 17 – 22, 2026 · 6 Days, 5 Nights</div>
     <h1>Beijing Autumn Essence &amp; Imperial Harmony</h1>
-    <p class="sub">Nature, temple masterpieces, and hutong café-chilling — a geographic-flow itinerary through imperial Beijing at the peak of its autumn colour.</p>
-    <div class="flight-rows">
+    <button class="flight-toggle" type="button" aria-expanded="false" aria-controls="flight-details">Flights &amp; stay</button>
+    <div class="flight-rows" id="flight-details" hidden>
       <div class="row"><span class="gold">SQ800</span><span class="dim">SIN T3 → PEK T3</span><span>01:10 → 07:15</span><span class="dim">· Sat, Oct 17</span></div>
       <div class="row"><span class="gold">SQ811</span><span class="dim">PKX → SIN T3</span><span>09:25 → 15:50</span><span class="dim">· Thu, Oct 22</span></div>
       <div class="row dim">Staying: Sunworld Dynasty Hotel, Wangfujing Street</div>
+      <div class="row"><a class="flight-folder-link" href="https://drive.google.com/drive/folders/16DtZ9WycuL7teLC6f2V8Z0VJrpftXIv1" target="_blank" rel="noopener noreferrer">Flight details (Restricted access)</a></div>
     </div>
   </div>
 </section>
@@ -319,6 +336,14 @@
 </footer>
 
 <script>
+const flightToggle = document.querySelector('.flight-toggle');
+const flightDetails = document.getElementById('flight-details');
+flightToggle.addEventListener('click', () => {
+  const expanded = flightToggle.getAttribute('aria-expanded') !== 'true';
+  flightToggle.setAttribute('aria-expanded', String(expanded));
+  flightDetails.hidden = !expanded;
+});
+
 /* ---------------- DATA ---------------- */
 const DAYS = [
   {
