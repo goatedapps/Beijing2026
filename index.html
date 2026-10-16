@@ -354,7 +354,7 @@ const DAYS = [
       { time:"11:45 AM", title:"Depart Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
         text:"Set off from the hotel on Wangfujing Street to begin the day's imperial walk (Booked on Klook).",
         link:"https://drive.google.com/file/d/1gg5FYG-gXZxUzj7ACxrTCVeQTfXJPBJR/view?usp=sharing",
-        linkLabel:"Restricted access",
+        linkLabel:"Klook Booking Details (Restricted access)",
         photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
       { transit:{type:"car", label:"DiDi · Hotel → Forbidden City (Meridian Gate) · ~10 min / 3 km"} },
       { time:"12:00 NN", title:"The Forbidden City", zh:"故宫", coord:[39.9163,116.3972],
@@ -389,7 +389,7 @@ const DAYS = [
       { time:"7:00 – 8:00 AM", title:"Depart Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
         text:"Klook pickup directly from the hotel on Wangfujing Street for today's premium day tour.",
         link:"https://drive.google.com/file/d/1h8h4xE0xqzLPFMKwEfz4LKGPwFCmYL2A/view?usp=sharing",
-        linkLabel:"Full day tour booking · Restricted access",
+        linkLabel:"Klook Booking Details (Restricted access)",
         photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
       { transit:{type:"bus", label:"Coach · ~1.5 hr air-conditioned drive to Mutianyu"} },
       { time:"10:00 AM", title:"Mutianyu Great Wall", zh:"慕田峪长城", coord:[40.4319,116.5704],
@@ -424,7 +424,8 @@ const DAYS = [
         link:"https://www.travelchinaguide.com/attraction/beijing/798-art-zone.htm" },
       { transit:{type:"car", label:"DiDi · 798 Art District → Qianmen Street · ~35 min"} },
       { time:"Evening", title:"Beijing Imperial Banquet", zh:"帝王宴", coord:[39.8985,116.3978],
-        text:"An immersive imperial banquet at Beijing Gongyan, 50 Qianmen Street, Dongcheng District — classical dance and music performances alongside a meticulously plated multi-course set menu inspired by the feasts of ancient Chinese emperors.",
+        text:"An immersive imperial banquet at Beijing Gongyan, 50 Qianmen Street, Dongcheng District — classical dance and music performances alongside a meticulously plated multi-course set menu inspired by the feasts of ancient Chinese emperors.<br>Booked on Klook.",
+        bookingLink:"https://drive.google.com/file/d/1aQQpYTQ8dqgJtrjMvYjm4WOQRytKzjPf/view?usp=sharing",
         photo:{src:"images/beijing-imperial-banquet.png", alt:"Beijing Imperial Banquet"},
         link:"https://www.klook.com/en-SG/activity/172165-beijing-imperial-banquet-a-grand-feast-of-ancient-chinese-emperors/" },
       { transit:{type:"car", label:"DiDi · Qianmen Street → Hotel · ~12 min / 4 km"} },
@@ -566,6 +567,7 @@ DAYS.forEach(day => {
     }
     const zhHtml = item.zh ? `<span class="zh">${item.zh}</span>` : '';
     const linkHtml = item.link ? `<a class="stop-link" href="${item.link}" target="_blank" rel="noopener noreferrer">${item.linkLabel || 'More info'} ↗</a>` : '';
+    const bookingLinkHtml = item.bookingLink ? `<a class="stop-link" href="${item.bookingLink}" target="_blank" rel="noopener noreferrer">Klook Booking Details (Restricted access) ↗</a>` : '';
     stop.innerHTML = `
       <div class="stop-marker"><div class="num">${stopNumbers.get(item)}</div><div class="stem"></div></div>
       <div class="stop-body">
@@ -574,6 +576,7 @@ DAYS.forEach(day => {
         <p>${item.text}</p>
         ${photoHtml}
         ${linkHtml}
+        ${bookingLinkHtml}
       </div>`;
     timeline.appendChild(stop);
   });
