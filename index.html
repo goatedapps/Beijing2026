@@ -326,9 +326,11 @@ const DAYS = [
     teaser: "Land, check in, ease into Beijing through its quietest hutong.",
     stops: [
       { time:"07:15 AM", title:"Arrival — Beijing Capital Airport", zh:"北京首都国际机场", coord:[40.0799,116.6031],
-        text:"Land at PEK Terminal 3, clear immigration and baggage claim, then take a DiDi straight into the city.",
+        text:"Land at PEK Terminal 3, clear immigration and baggage claim. Wait for airport pickup (booked via Klook).",
+        link:"https://drive.google.com/file/d/126x3-RuRBWzrCpfnEIUkDg-yKr5MLuUW/view?usp=sharing",
+        linkLabel:"Airport pickup details (Google Drive · Restricted access)",
         photo:{src:"images/airport-pek.png", alt:"Beijing Capital Airport"} },
-      { transit:{type:"car", label:"DiDi · PEK → Sunworld Dynasty Hotel · ~35–45 min / 28 km"} },
+      { transit:{type:"car", label:"Airport pickup (booked via Klook) · PEK → Sunworld Dynasty Hotel · ~35–45 min / 28 km"} },
       { time:"Late morning", title:"Check-in — Sunworld Dynasty Hotel", zh:"北京王府井天伦王朝酒店", coord:[39.9142,116.4080],
         text:"Drop bags at the lobby on Wangfujing Street and freshen up before heading back out.",
         photo:{src:"images/hotel-sunworld-dynasty.png", alt:"Sunworld Dynasty Hotel, Wangfujing Street"} },
@@ -559,7 +561,7 @@ DAYS.forEach(day => {
         </div>`;
     }
     const zhHtml = item.zh ? `<span class="zh">${item.zh}</span>` : '';
-    const linkHtml = item.link ? `<a class="stop-link" href="${item.link}" target="_blank" rel="noopener noreferrer">More info ↗</a>` : '';
+    const linkHtml = item.link ? `<a class="stop-link" href="${item.link}" target="_blank" rel="noopener noreferrer">${item.linkLabel || 'More info'} ↗</a>` : '';
     stop.innerHTML = `
       <div class="stop-marker"><div class="num">${stopNumbers.get(item)}</div><div class="stem"></div></div>
       <div class="stop-body">
